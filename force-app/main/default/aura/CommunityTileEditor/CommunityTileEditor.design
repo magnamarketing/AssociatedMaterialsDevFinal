@@ -1,0 +1,14 @@
+<!--
+ - Created by SentientGrey on 2019-08-01.
+ -->
+<design:component>
+    <design:attribute name="label" label="Title" />
+    <design:attribute name="description" label="Description" />
+    <design:attribute name="redirectUrl" label="Redirect URL" />
+    <design:attribute name="openInNewTab" label="Open URL in New Tab" />
+    <design:attribute name="bannerUrl" label="Banner URL"/>
+    <design:attribute name="color" label="Text Color" />
+    <design:attribute name="height" label="Card Height" />
+    <design:attribute name="backgroundColor" label="Background Color" />
+    <design:attribute name="hoverColor" label="Hover Color" />
+</design:component>

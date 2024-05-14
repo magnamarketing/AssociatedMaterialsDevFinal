@@ -1,0 +1,186 @@
+.hidden-amiclaims {
+	display: none;
+}
+
+.relative {
+	pos: relative;
+}
+
+.hover-hand {
+	cursor: pointer;
+}
+
+.hover-background:hover {
+	background-color: #e3f3ff !important;
+}
+
+.selected-row {
+    background-color: rgba(217, 83, 79, 0.46) !important;
+}
+
+.border {
+	border: solid #f7f7f9;
+}
+
+.underline {
+	text-decoration: underline;
+}
+
+.align-left {
+	text-align: left;
+}
+
+.align-right {
+	text-align: right;
+}
+
+.align-center {
+	text-align: center;
+}
+
+h3.warning-text {
+	color: #265a88;
+}
+
+i.fa-2 {
+	font-size: 2em;
+}
+
+i.fa-spinner {
+	display: none;
+	position: absolute;
+    left: 46%;
+    top: 40%;
+	z-index: 1051;
+}
+
+i#img-camera {
+	margin-bottom: 5px;
+}
+
+hr.hr-margin {
+	margin: 30px 0 30px 0;
+}
+
+div.pac-container {
+    z-index: 9999;
+}
+
+div.marketing {
+	padding-top: 15px;
+}
+
+div#map-canvas {
+	height: 35em;
+}
+
+div#home-status-init {
+	margin-bottom: 30px;
+}
+
+button.btn-select-property {
+	position: absolute;
+	bottom: 15px;
+	right: 15px;
+}
+
+button.btn-top-right {
+	float: right;
+	margin-right: 15px;
+}
+
+img.img-responsive{
+	display: inline-block;
+}
+
+div.search-prop-container {
+	padding-left: 0;
+}
+
+div.modal {
+	overflow-y: auto;
+}
+
+div.modal-wide {
+	width: 95%;
+}
+
+p.logout {
+	position: absolute;
+    top: 10px;
+    right: 20px;
+    z-index: 1;
+}
+
+div#alert-error {
+	z-index: 9999999;
+    position: absolute;
+    top: 2em;
+    left: 2em;
+    right: 2em;
+}
+
+i#img-camera-update:hover {
+	color: #0275cc;
+}
+
+i#img-camera-update {
+	margin-right: 10px;
+}
+
+div.tooltip a {
+	color: #fff;
+	text-decoration: underline;
+}
+
+button#add-serial-number {
+	margin-top: 5px;
+}
+
+/*img#img-logo {
+	height: 150px;
+    width: 400px;
+}
+
+.img-logo-branding {
+	height: 150px;
+	width: 150px;
+}
+
+.img-logo-branding-wide {
+	height: 150px;
+	width: 400px;
+}*/
+
+select#area-concern, select#area-concern-update {
+	min-height: 97px;
+}
+
+.datepicker table tr td.disabled {
+	color: #f2dede;
+}
+
+a#link-find-waranty > label.hover-hand {
+	text-decoration: underline;
+}
+
+.slidein {
+  animation-duration: 2s;
+  animation-name: slidein;
+}
+
+@media only screen and (max-width: 768px) {
+    div.modal-body {
+	    max-height: 28em;
+	    overflow-y: auto;
+	    -webkit-overflow-scrolling: touch;
+	}
+	
+	div#map-canvas {
+		height: 20em;
+	}
+	
+	.hidden-mobile {
+		display: none;
+	}
+}

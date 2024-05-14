@@ -1,0 +1,41 @@
+<!-- 
+Company    : Fujitsu America
+Date       : Feb 2010
+Author     : Anand Sharma
+Description: page for selecting order for case record
+History    :              
+-->
+<apex:page id="pgOrderLookup" standardController="Case" extensions="OrderLookupExtension">
+<apex:form id="frmOrderLookup">
+    
+    <apex:sectionHeader id="shSectionHeader" title="Order Selection" subtitle="{!currentCase.Account.Name}" rendered="{!isCustomerPresent}"/>
+    
+    <apex:outputPanel id="opErrorPanel" rendered="{!NOT(isCustomerPresent)}">
+        <div style="font-weight:bold;font-color:Red;">
+            Error: No Customer present, please select a customer.
+        </div>
+    </apex:outputPanel>
+    
+    <apex:pageBlock id="pbSelectOrder" title="Select Order" rendered="{!isCustomerPresent}">
+        <apex:pageBlockButtons >
+            <apex:commandButton value="Cancel" action="{!cancel}"/>
+        </apex:pageBlockButtons>
+        
+        <apex:outputPanel rendered="{!isOrdersListEmpty}">
+            No records to display.
+        </apex:outputPanel>
+        
+        <apex:pageBlockTable id="pbtOrdersTable" value="{!lstOrders}" var="order" rendered="{!NOT(isOrdersListEmpty)}">
+            <apex:column headerValue="FO #">
+                <apex:commandLink id="clOrderName" value="{!order.Name}" action="{!updateCase}">
+                    <apex:param id="pOrderId" name="OrderId" assignTo="{!selectedOrderId}" value="{!order.Id}"/>
+                </apex:commandLink> 
+            </apex:column>
+            <apex:column value="{!order.Purchase_Order__c}"/>
+            <apex:column value="{!order.Customer_Purchase_Order__c}"/>
+            <apex:column value="{!order.Order_Date__c}"/>
+        </apex:pageBlockTable>
+    </apex:pageBlock> 
+
+</apex:form>
+</apex:page>

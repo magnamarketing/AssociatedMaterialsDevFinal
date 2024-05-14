@@ -1,0 +1,766 @@
+<apex:page showHeader="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0" standardStyleSheets="false" controller="ClaimsUtilities" action="{!redirect}">
+    <html lang="en">
+        <head>
+            <meta charset="utf-8"></meta>
+            <meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+            <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+            <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+            <meta name="description" content=""></meta>
+            <meta name="author" content="Joseph Markey"></meta>
+            <title>AMI Claims</title>
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" />
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/css/bootstrap-datepicker.min.css" />
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+            <link rel="stylesheet" href="{!URLFOR($Resource.amiclaims, 'amiclaims.css')}" />
+            <!--[if lt IE 9]>
+                <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+                <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+            <![endif]-->
+        </head>
+        <body id="ControllerAssociatedMaterials" ng-app="appAssociatedMaterials" ng-controller="ControllerAssociatedMaterials">
+            <input type="hidden" id="userId" value="{!CurrentUserId}" />
+            <input type="hidden" id="accountId" value="{!CurrentAccountId}" />
+            <input type="hidden" id="contactId" value="{!CurrentContactId}" />
+            <input type="hidden" id="propertyOwnerId" value="{!PropertyOwnerId}" />
+            <div class="container relative">
+                <p class="pull-right logout">
+                    <a href="{!$Site.Prefix}/secur/logout.jsp">Logout</a>
+                </p>
+                <div id="alert-error" class="alert alert-danger hidden-amiclaims" role="alert">
+                    <button id="close-alert-error" type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <strong>Alert!</strong> Message: <span id="alert-error-message"></span>
+                </div>
+                <div class="modal fade" id="modal-warning" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h3 class="modal-title warning-text">Attention</h3>
+                            </div>
+                            <div class="modal-body">
+                                <div ng-show="isWindowClaim">
+                                    <div>
+                                        <label>Please note: You will need to provide the following documentation to start your claim:</label>
+                                        <ol>
+                                            <li><strong>Proof of home ownership</strong> as either the original or second owner at the time of window installation. Proof can include a dated copy of a tax record, a record of sale, a utility bill or some other dated document showing ownership.</li>
+                                            <li><strong><a href="http://www.alside.com/media/25003/june-2016-revision-window-warranty-ip-2-.pdf" target="_blank">Proof of Window Purchase</a></strong>. Proof can include copy of warranty, copy of invoice for window purchase, contract from window installer or a serial number.</li>
+                                            <li><strong>Photographs</strong> showing the affected unit and the problem thereon.</li>
+                                        </ol>
+                                        <label>Please ensure you have these documents available to upload from your computer or mobile device. You will not be able to submit a claim without these documents.</label>
+                                    </div>
+                                </div>
+                                <div ng-show="!isWindowClaim">
+                                    <div>
+                                        <label>Please note: You will need to provide the following documentation to start your claim:</label>
+                                        <ol>
+                                            <li><strong>Proof of home ownership</strong> as either the original or second owner at the time of siding installation. Proof can include a dated copy of a tax record, a record of sale, a utility bill or some other dated document showing ownership.</li>
+                                            <li><strong>Proof of Siding Purchase</strong>. Proof can include copy of warranty, copy of invoice for siding purchase, or contract from the siding installer.</li>
+                                            <li><strong>Photographs</strong> of EACH wall of the home including several showing the issues being claimed.</li>
+                                        </ol>
+                                        <label>Please ensure you have these documents available to upload from your computer or mobile device. You will not be able to submit a claim without these documents.</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Quit</button>
+                                <button id="save-file" type="button" class="btn btn-success" ng-click="continueClaim()">Continue</button>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="modal-add-files" tabindex="-1" role="dialog" aria-labelledby="modalAddFiles">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" ng-click="closeSaveFileModal()" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title" id="modalAddFiles">Add Files</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form id="form-file">
+                                    <p>
+                                        <label>Take Photo Now / Attach File - Please upload 1 file at a time</label>
+                                    </p>
+                                    <div ng-show="!isFromUpdateClaim">
+                                        <div>
+                                            <label>1. Proof of Ownership:</label>
+                                            <span ng-bind-html="originalOwnerStatus+' '+transferOwnerStatus"></span>
+                                        </div>
+                                        <div>
+                                            <label>2. Photo of Area of Complaint</label>
+                                        </div>
+                                        <div>
+                                            <label>3. Proof of Purchase</label>
+                                        </div>
+                                    </div>
+                                    <p>
+                                        <i id="img-camera" class="fa fa-camera fa-2" ng-show="true"></i>
+                                        <input id="input-file" type="file" class="input-file hover-hand" accept="image/*;capture=camera" />
+                                    </p>
+                                    <div ng-show="uploadedAttachments.length > 0">
+                                        <table class="table table-bordered">
+                                            <tr>
+                                                <th>Attached Files</th>
+                                                <th>Action</th>
+                                            </tr>
+                                            <tr ng-repeat="attachment in uploadedAttachments | newlyUploadedAttachments:this">
+                                                <td>
+                                                    <span ng-bind-html="$index + 1"></span>.
+                                                    <a href="/servlet/servlet.FileDownload?file={{attachment.Id}}" target="_blank">
+                                                        <span ng-bind-html="attachment.Name"></span>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-default btn-danger btn-xs" ng-click="deleteFile(attachment.Id)" ng-disabled="isDeletingFile || (attachment.OwnerId.substring(0,15) != '{!$User.Id}'.substring(0,15))">Delete</button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <i id="fa-loader-file" class="fa fa-spinner fa-pulse fa-3x fa-fw fa-loader" aria-hidden="true"></i>
+                                <button type="button" class="btn btn-default btn-warning" ng-click="closeSaveFileModal()">I'm Finished</button>
+                                <button id="save-file" type="button" class="btn btn-primary" ng-click="saveFile()">Save File</button>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="modal-confirm-property" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title" id="myModalLabel">Confirm Property</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form class="form-horizontal">
+                                    <p class="hidden-amiclaims">
+                                        <span ng-bind-html="selectedProperty.Id"></span>
+                                    </p>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">Name: </label>
+                                        <div class="col-sm-9">
+                                            <p class="form-control-static"><span ng-bind-html="selectedProperty.Name"></span></p>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">Address: </label>
+                                        <div class="col-sm-9">
+                                            <p class="form-control-static"><span ng-bind-html="selectedProperty.Address_1__c"></span></p>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">City: </label>
+                                        <div class="col-sm-9">
+                                            <p class="form-control-static"><span ng-bind-html="selectedProperty.City__c"></span></p>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">State: </label>
+                                        <div class="col-sm-9">
+                                            <p class="form-control-static"><span ng-bind-html="selectedProperty.State__c"></span></p>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">Country: </label>
+                                        <div class="col-sm-9">
+                                            <p class="form-control-static"><span ng-bind-html="selectedProperty.Country__c"></span></p>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">Postal Code: </label>
+                                        <div class="col-sm-9">
+                                            <p class="form-control-static"><span ng-bind-html="selectedProperty.Zip_Postal_Code__c"></span></p>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">Property Type: </label>
+                                        <div class="col-sm-9">
+                                            <p class="form-control-static"><span ng-bind-html="selectedProperty.Property_Type__c"></span></p>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-default btn-warning" ng-click="myProperties()">Back to Properties</button>
+                                <button type="button" class="btn btn-primary" ng-click="confirmProperty()">Confirm</button>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="modal-home-ownership" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title" id="myModalLabel">Proof of Home Ownership at Time of Installation</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form role="form">
+                                    <div id="home-status-init" data-toggle="tooltip" data-placement="bottom" data-html="true" title="<p><strong><u>Original Owner:</u></strong> You were the owner at the time of installation.</p><p><strong><u>Second Owner:</u></strong> Subsequent owner to the Original Owner. Please note that warranties are not transferable beyond the Second Owner.</p>">
+                                        <h5><strong>Select one:</strong></h5>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-status" ng-click="getOriginalOwner()" checked="true" /> Original Owner (1)</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-status" ng-click="getTransferOwner()" /> Second Owner (2)</label>
+                                        </div>
+                                    </div>
+                                    <div id="original-owner-status" ng-show="isOriginalOwner">
+                                        <h5><strong>Original Owner:</strong></h5>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-owner" ng-model="originalOwnerStatus" value="Dated copy of tax record" /> Dated copy of tax record</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-owner" ng-model="originalOwnerStatus" value="Record of Sale Original Owner" /> Record of Sale</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-owner" ng-model="originalOwnerStatus" value="Utility Bill" /> Utility Bill</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-owner" ng-model="originalOwnerStatus" value="Other Document showing ownership" /> Other Document showing ownership</label>
+                                        </div>
+                                    </div>
+                                    <div id="transfer-owner-status" ng-show="!isOriginalOwner">
+                                        <h5><strong>Second Owner:</strong></h5>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-transfer" ng-model="transferOwnerStatus" value="Dated copy of closing papers" /> Dated copy of closing papers</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-transfer" ng-model="transferOwnerStatus" value="Record of Sale Second Owner" /> Record of Sale</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-transfer" ng-model="transferOwnerStatus" value="Quit Claim Deed" /> Quit Claim Deed</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-transfer" ng-model="transferOwnerStatus" value="Other Document showing ownership" /> Other Document showing ownership</label>
+                                        </div>
+                                    </div>
+                                    <div id="proof-siding-purchase-container">
+                                        <h5><strong><span ng-bind="claimType2"></span> Proof of Purchase:</strong></h5>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-transfer" ng-model="sidingProofPurchase" value="Other Document showing ownership" /> Copy of Warranty</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-transfer" ng-model="sidingProofPurchase" value="Invoice for Purchase" /> Invoice for Purchase</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-transfer" ng-model="sidingProofPurchase" value="Contract from Installer" /> Contract from Installer</label>
+                                        </div>
+                                        <div class="checkbox" ng-show="isWindowClaim">
+                                            <label><input type="radio" name="opt-radio-transfer" ng-model="sidingProofPurchase" value="Serial Number" /> Serial Number</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="radio" name="opt-radio-transfer" ng-model="sidingProofPurchase" value="Other" /> Other</label>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                              <button type="button" class="btn btn-primary" ng-click="saveHomeOwner()">Save</button>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="modal-map" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title" id="myModalLabel">New Property</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form>
+                                    <fieldset class="form-group">
+                                        <input id="geocomplete" class="form-control" type="text" placeholder="Enter Your Address" autocomplete="off" />
+                                    </fieldset>
+                                    <div id="map-canvas"></div>
+                                    <div id="map-details" class="hidden-amiclaims">
+                                        <input id="formatted_address" name="formatted_address" type="text" value="" />
+                                        <input id="street_number" name="street_number" type="text" value="" />
+                                        <input id="locality" name="locality" type="text" value="" /> <!-- might be the city -->
+                                        <input id="sublocality_level_1" name="sublocality_level_1" type="text" value="" /> <!-- might be the city -->
+                                        <input id="administrative_area_level_1" name="administrative_area_level_1" type="text" value="" />
+                                        <input id="administrative_area_level_2" name="administrative_area_level_2" type="text" value="" />
+                                        <input id="administrative_area_level_3" name="administrative_area_level_3" type="text" value="" /> <!-- might be the city -->
+                                        <input id="country" name="country" type="text" value="" />
+                                        <input id="postal_code" name="postal_code" type="text" value="" />
+                                    </div>
+                                    <div>
+                                        <ng-form name="newPropertyForm" class="form-horizontal" ng-show="showNewPropertyForm">
+                                            <div class="alert alert-danger" role="alert">
+                                                Sorry, address could not be found.<br/>
+                                                Please complete form then try again. Thanks!
+                                            </div>
+                                            <div class="form-group {{newPropertyForm.newPropertyStreet.$error.required ? 'has-error' : ''}}">
+                                                <label for="newPropertyStreet" class="col-sm-3 control-label">Street: </label>
+                                                <div class="col-sm-9">
+                                                    <input id="newPropertyStreet" name="newPropertyStreet" class="form-control" ng-model="newPropertyStreet" ng-required="!newPropertyStreet" type="text" value="" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group {{newPropertyForm.newPropertyCity.$error.required ? 'has-error' : ''}}">
+                                                <label for="newPropertyCity" class="col-sm-3 control-label">City: </label>
+                                                <div class="col-sm-9">
+                                                    <input id="newPropertyCity" name="newPropertyCity" class="form-control" ng-model="newPropertyCity" ng-required="!newPropertyCity" type="text" value="" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group {{newPropertyForm.newPropertyState.$error.required ? 'has-error' : ''}}">
+                                                <label for="newPropertyState" class="col-sm-3 control-label">State: </label>
+                                                <div class="col-sm-9">
+                                                    <input id="newPropertyState" name="newPropertyState" class="form-control" ng-model="newPropertyState" ng-required="!newPropertyState" type="text" value="" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group {{newPropertyForm.newPropertyPostalCode.$error.required ? 'has-error' : ''}}">
+                                                <label for="newPropertyPostalCode" class="col-sm-3 control-label">Postal Code: </label>
+                                                <div class="col-sm-9">
+                                                    <input id="newPropertyPostalCode" name="newPropertyPostalCode" class="form-control" ng-model="newPropertyPostalCode" ng-required="!newPropertyPostalCode" type="text" value="" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group {{newPropertyForm.newPropertyCountry.$error.required ? 'has-error' : ''}}">
+                                                <label for="newPropertyCountry" class="col-sm-3 control-label">Country: </label>
+                                                <div class="col-sm-9">
+                                                    <input id="newPropertyCountry" name="newPropertyCountry" class="form-control" ng-model="newPropertyCountry" ng-required="!newPropertyCountry" type="text" value="" />
+                                                </div>
+                                            </div>
+                                        </ng-form>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <i id="fa-loader-map" class="fa fa-spinner fa-pulse fa-3x fa-fw fa-loader" aria-hidden="true"></i>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-default btn-warning" ng-click="myProperties()">Back to Properties</button>
+                                <button type="button" class="btn btn-primary" ng-click="saveProperty()">Save Property</button>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="modal-window-claim" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title" id="myModalLabel">New <span ng-bind="claimType"></span> Claim</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form>
+                                    <fieldset class="form-group">
+                                        <p ng-show="isWindowClaim">
+                                            <a id="link-find-waranty" href="http://www.alside.com/media/25003/june-2016-revision-window-warranty-ip-2-.pdf"><label for="serial-number-window" class="hover-hand">Window Serial Number</label></a>
+                                            <input type="text" id="serial-number-window" class="form-control" placeholder="Window Serial Number" ng-model="serialNumberWindow" data-toggle="tooltip" data-placement="top" data-html="true" title="<a href='http://www.alside.com/media/25003/june-2016-revision-window-warranty-ip-2-.pdf' target='_blank'>How to Find Window Serial Number</a>" />
+                                            <button id="add-serial-number" type="button" class="btn btn-success" ng-click="addSerialNumber()">Add Another Window Serial Number</button>
+                                        </p>
+                                        <div class="table-responsive" ng-show="serialNumberWindowArr.length">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Claim Numbers Added</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr ng-repeat="serialNum in serialNumberWindowArr track by $index">
+                                                        <td>
+                                                            <span ng-bind-html="serialNum"></span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <p>
+                                            <label for="number-affected"><span ng-bind="claimTypeUnit"></span> of <span ng-bind="claimType"></span> Affected</label>
+                                            <input type="number" min="1" max="99999" id="number-affected" class="form-control" placeholder="{{claimTypeUnit}} of {{claimType}} Affected" ng-model="numberAffected" />
+                                        </p>
+                                        <p ng-show="isWindowClaim">
+                                            <label for="area-concern">Replacement parts are ordered based on looking from the outside into the inside of the home. Please indicate what part of the window your concern involves.</label>
+                                            <select id="area-concern" class="form-control" ng-options="option as option for option in statusAreaConcern" ng-model="areaConcern" multiple="true"></select>
+                                        </p>
+                                        <p>
+                                            <label for="complaint-type">Complaint Type</label>
+                                            <select id="complaint-type" class="form-control" ng-show="isWindowClaim" ng-options="option as option for option in status" ng-model="complaintType"></select>
+                                            <select id="complaint-type" class="form-control" ng-show="!isWindowClaim" ng-options="option as option for option in statusSiding" ng-model="complaintTypeSiding"></select>
+                                        </p>
+                                        <p>
+                                            <label for="brand">Brand</label>
+                                            <select id="brand" class="form-control" ng-options="option as option for option in statusBrand" ng-model="brand"></select>
+                                        </p>
+                                        <p>
+                                            <label for="product-type">Product Type</label>
+                                            <select id="product-type" class="form-control" ng-options="option as option for option in statusProductType" ng-model="productType"></select>
+                                        </p>
+                                        <div>
+                                            <label for="install-date">Install Date</label>
+                                            <div class="form-group">
+                                                <div class="input-group date">
+                                                    <input type="text" data-provide="datepicker" id="install-date" class="form-control required" placeholder="Install Date" ng-model="installDate" required="true" autocomplete="off" />
+                                                    <span class="input-group-addon">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p ng-show="!isWindowClaim">
+                                            <label for="siding-color">Siding Color</label>
+                                            <input type="text" id="siding-color" class="form-control" placeholder="Siding Color" ng-model="sidingColor" />
+                                        </p>
+                                        <div ng-show="uploadedAttachments.length > 0">
+                                            <table class="table table-bordered">
+                                                <tr>
+                                                    <th>Attached Files</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                                <tr ng-repeat="attachment in uploadedAttachments">
+                                                    <td>
+                                                        <span ng-bind-html="$index + 1"></span>.
+                                                        <a href="/servlet/servlet.FileDownload?file={{attachment.Id}}" target="_blank">
+                                                            <span ng-bind-html="attachment.Name"></span>
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-default btn-danger btn-xs" ng-click="deleteFile(attachment.Id)" ng-disabled="isDeletingFile || (attachment.OwnerId.substring(0,15) != '{!$User.Id}'.substring(0,15))">Delete</button>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <p>
+                                            <label for="claim-notes">Notes</label>
+                                            <textarea id="claim-notes" class="form-control" rows="5" placeholder="Notes" ng-model="claimNotes"></textarea>
+                                        </p>
+                                    </fieldset>
+                                </form>
+                            </div>
+                           <div class="modal-footer">
+                                <i id="fa-loader-window" class="fa fa-spinner fa-pulse fa-3x fa-fw fa-loader" aria-hidden="true"></i>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" ng-click="saveClaim()">Save Claim</button>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="modal-select-property" tabindex="-1" role="dialog" aria-labelledby="modalSelectProperty">
+                    <div class="modal-dialog modal-wide" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <button class="btn btn-success btn-top-right" ng-click="addProperty()">New Property</button>
+                                <h4 class="modal-title" id="modalSelectProperty">Select Property</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div id="properties" class="row">
+                                    <div class="col-lg-12">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="hidden-mobile">Select Property</th>
+                                                        <th class="hidden-mobile">Property Name</th>
+                                                        <th>Address</th>
+                                                        <th class="hidden-mobile">City</th>
+                                                        <th class="hidden-mobile">State</th>
+                                                        <th class="hidden-mobile">Country</th>
+                                                        <th class="hidden-mobile">Postal Code</th>
+                                                        <th>Property Type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr ng-repeat="prop in properties" ng-click="selectProperty(prop)" class="hover-hand hover-background">
+                                                        <td ng-show="false">
+                                                            <span ng-bind-html="prop.Id"></span>
+                                                        </td>
+                                                        <td ng-show="false">
+                                                            <span ng-bind-html="prop.Legacy_Property_ID__c"></span>
+                                                        </td>
+                                                        <td class="hidden-mobile">
+                                                            <button class="btn btn-primary">Select Property</button>
+                                                        </td>
+                                                        <td class="hidden-mobile">
+                                                            <span ng-bind-html="prop.Name"></span>
+                                                        </td>
+                                                        <td>
+                                                            <span ng-bind-html="prop.Address_1__c"></span>
+                                                        </td>
+                                                        <td class="hidden-mobile">
+                                                            <span ng-bind-html="prop.City__c"></span>
+                                                        </td>
+                                                        <td class="hidden-mobile">
+                                                            <span ng-bind-html="prop.State__c"></span>
+                                                        </td>
+                                                        <td class="hidden-mobile">
+                                                            <span ng-bind-html="prop.Country__c"></span>
+                                                        </td>
+                                                        <td class="hidden-mobile">
+                                                            <span ng-bind-html="prop.Zip_Postal_Code__c"></span>
+                                                        </td>
+                                                        <td>
+                                                            <span ng-bind-html="prop.Property_Type__c"></span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="modal-update-claim" tabindex="-1" role="dialog" aria-labelledby="modalUpdateClaiml">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title" id="modalUpdateClaim">Update Claim</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form>
+                                    <fieldset class="form-group">
+                                        <p>
+                                            <label for="claim-number-update">Claim Number</label>
+                                            <input type="text" id="claim-number-update" class="form-control" placeholder="Claim Number" ng-model="selectedClaim.CaseNumber" disabled="true" />
+                                        </p>
+                                        <p>
+                                            <label for="claim-status-update">Claim Status</label>
+                                            <input type="text" id="claim-status-update" class="form-control" placeholder="Claim Status" ng-model="selectedClaim.Status" disabled="true" />
+                                        </p>
+                                        <p>
+                                            <label for="claim-ownership-update">Ownership Type</label>
+                                            <input type="text" id="claim-ownership-update" class="form-control" placeholder="Ownership Type" ng-model="selectedClaim.Ownership_Type__c" disabled="true" />
+                                        </p>
+                                        <p ng-show="isWindowClaimUpdate">
+                                            <label for="claim-serial-update">Window Serial Number</label>
+                                            <input type="text" id="claim-serial-update" class="form-control" placeholder="Serial Number" ng-model="selectedClaim.Serial_Number__c" />
+                                        </p>
+                                        <p>
+                                            <label for="claim-address-update">Address</label>
+                                            <input type="text" id="claim-address-update" class="form-control" placeholder="Address" ng-model="selectedClaim.Property__r.Address_1__c" ng-change="updatingAddress=true" disabled="true" />
+                                        </p>
+                                        <p>
+                                            <label for="claim-ship-to-address">Shipped To</label>
+                                            <input type="text" id="claim-ship-to-address-update" class="form-control" placeholder="Shipped to Address" ng-model="selectedClaim.Orders__r[0].Ship_to_Address__c" disabled="true" />
+                                        </p>
+                                        <p>
+                                            <label for="claim-ship-to-address">Estimated Ship Date</label>
+                                            <input type="text" id="claim-ship-date-update" class="form-control" placeholder="Shipped Date" ng-model="selectedClaim.Orders__r[0].Comm_Estimated_Ship_Date__c" disabled="true" /> <!--| date:'M/d/yyyy'-->
+                                        </p>
+                                        <p>
+                                            <label for="number-affected-update">Pieces Affected</label>
+                                            <input type="number" min="1" max="99999" id="number-affected-update" class="form-control" placeholder="Pieces Affected" ng-model="selectedClaim.of_Windows_Affected__c" />
+                                        </p>
+                                        <p ng-show="isWindowClaim">
+                                            <label for="area-concern-update">Replacement parts are ordered based on looking from the outside into the inside of the home. Please indicate what part of the window your concern involves.</label>
+                                            <select id="area-concern-update" class="form-control" ng-options="option as option for option in statusAreaConcern" ng-model="selectedClaim.Window_Area_of_Concern__c" multiple="true"></select>
+                                        </p>
+                                        <p>
+                                            <label for="complaint-type-update">Complaint Type</label>
+                                            <select id="complaint-type-update" class="form-control" ng-show="isWindowClaim" ng-options="option as option for option in status" ng-model="selectedClaim.Complaint_Type_Windows_Web_Claim__c"></select>
+                                            <select id="complaint-type-siding-update" class="form-control" ng-show="!isWindowClaim" ng-options="option as option for option in statusSiding" ng-model="selectedClaim.Complaint_Type_Siding_Web_Claim__c"></select>
+                                        </p>
+                                        <p>
+                                            <label for="brand-update">Brand</label>
+                                            <select id="brand-update" class="form-control" ng-options="option as option for option in statusBrand" ng-model="selectedClaim.Brand__c"></select>
+                                        </p>
+                                        <p>
+                                            <label for="product-type-update">Product Type</label>
+                                            <select id="product-type-update" class="form-control" ng-options="option as option for option in statusProductType" ng-model="selectedClaim.Product_Type__c"></select>
+                                        </p>
+                                        <div>
+                                            <label for="install-date-update">Install Date</label>
+                                            <div class="form-group">
+                                                <div class="input-group date">
+                                                    <input type="text" data-provide="datepicker" id="install-date-update" class="form-control required" value="{{selectedClaim.Installation_Date__c | date:'MM/dd/yyyy'}}" placeholder="Install Date" required="true" autocomplete="off"></input>
+                                                    <span class="input-group-addon">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p>
+                                            <i id="img-camera-update" class="fa fa-camera fa-2 hover-hand"></i><label>Add File</label>
+                                        </p>
+                                        <div ng-show="uploadedAttachments.length > 0">
+                                            <table class="table table-bordered">
+                                                <tr>
+                                                    <th>Attached Files</th>
+                                                </tr>
+                                                <tr ng-repeat="attachment in uploadedAttachments">
+                                                    <td>
+                                                        <span ng-bind-html="$index + 1"></span>.
+                                                        <a href="/servlet/servlet.FileDownload?file={{attachment.Id}}" target="_blank">
+                                                            <span ng-bind-html="attachment.Name"></span>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <p ng-show="!isWindowClaim">
+                                            <label for="siding-color-update">Siding Color</label>
+                                            <input type="text" id="siding-color-update" class="form-control" placeholder="Siding Color" ng-model="selectedClaim.Siding_Color_Name__c" />
+                                        </p>
+                                        <p>
+                                            <label for="claim-notes-update">Notes</label>
+                                            <textarea id="claim-notes-update" class="form-control" rows="5" placeholder="Notes" ng-model="selectedClaim.Notes__c"></textarea>
+                                        </p>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                            <i id="fa-loader-update" class="fa fa-spinner fa-pulse fa-3x fa-fw fa-loader" aria-hidden="true"></i>
+                              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                              <button type="button" class="btn btn-default btn-warning" ng-click="myClaims()">My Claims</button>
+                              <button type="button" class="btn btn-primary" ng-click="updateClaim()">Update</button>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="modal-claims" tabindex="-1" role="dialog" aria-labelledby="modalClaims">
+                    <div class="modal-dialog modal-wide" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title" id="modalClaims">Manage Claims</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div id="alert-success" class="alert alert-success hidden-amiclaims" role="alert" style="z-index:9999">
+                                    <button id="close-alert-success" type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <strong>Success!</strong> Message: <span id="alert-success-message"></span>
+                                </div>
+                                <div id="claims" class="row">
+                                    <div class="col-lg-12">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="hidden-mobile">Select Claim</th>
+                                                        <th class="hidden-mobile">Claim Number</th>
+                                                        <th class="hidden-mobile">Status</th>
+                                                        <th class="hidden-mobile">Ownership Type</th>
+                                                        <th class="hidden-mobile">Window Serial Number</th>
+                                                        <th>Address</th>
+                                                        <th>Shipped To</th>
+                                                        <th>Estimated Ship Date</th>
+                                                        <th class="hidden-mobile">Number of Windows/Siding Affected</th>
+                                                        <th>Area of Concern</th>
+                                                        <th>Complaint Type</th>
+                                                        <th>Notes</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <div class="col-md-3 search-prop-container">
+                                                        <input type="text" placeholder="Search Claims" class="form-control ng-valid ng-dirty" ng-model="searchClaims" />
+                                                    </div>
+                                                    <tr ng-repeat="claim in claims | filter: searchClaims" ng-click="selectClaim(claim)" class="hover-hand hover-background" data-toggle="modal" data-target="#modal-update-claim">
+                                                        <td ng-show="false">
+                                                            <span ng-bind-html="claim.Id"></span>
+                                                        </td>
+                                                        <td ng-show="false">
+                                                            <span ng-bind-html="claim.Subject"></span>
+                                                        </td>
+                                                        <td class="hidden-mobile">
+                                                            <button class="btn btn-primary">Select Claim</button>
+                                                        </td>
+                                                        <td class="hidden-mobile">
+                                                            <span ng-bind-html="claim.CaseNumber"></span>
+                                                        </td>
+                                                        <td class="hidden-mobile">
+                                                            <span ng-bind-html="claim.Status"></span>
+                                                        </td>
+                                                        <td class="hidden-mobile">
+                                                            <span ng-bind-html="claim.Ownership_Type__c"></span>
+                                                        </td>
+                                                        <td class="hidden-mobile">
+                                                            <span ng-bind-html="claim.Serial_Number__c"></span>
+                                                        </td>
+                                                        <td>
+                                                            <span ng-bind-html="claim.Property__r.Address_1__c"></span>
+                                                        </td>
+                                                        <td>
+                                                            <span ng-bind-html="claim.Orders__r[0].Ship_to_Address__c"></span>
+                                                        </td>
+                                                        <td>
+                                                            <span ng-bind-html="claim.Orders__r[0].Comm_Estimated_Ship_Date__c"></span> <!--| date:'M/d/yyyy'-->
+                                                        </td>
+                                                        <td class="hidden-mobile">
+                                                            <span ng-bind-html="claim.of_Windows_Affected__c"></span>
+                                                        </td>
+                                                        <td>
+                                                            <span ng-bind-html="claim.Window_Area_of_Concern__c"></span>
+                                                        </td>
+                                                        <td>
+                                                            <span ng-bind-html="claim.Complaint_Type_Windows_Web_Claim__c"></span>
+                                                        </td>
+                                                        <td>
+                                                            <span ng-bind-html="claim.Notes__c"></span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="marketing text-center">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <img id="img-logo" src="" class="img-responsive" />
+                            <h2>Window/Siding Claims Submission App</h2>
+                            <hr></hr>
+                            <p>
+                                <button class="btn btn-primary btn-lg" ng-click="createNewWindowClaim()">Create a Window Claim</button>
+                            </p>
+                            <p>
+                                <button class="btn btn-primary btn-lg" ng-click="createNewSidingClaim()">Create a Siding Claim</button>
+                            </p>
+                            <hr class="hr-margin"></hr>
+                            <p>
+                                <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modal-claims">Manage Claims / View Status</button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/js/bootstrap-datepicker.min.js"></script>
+            <script src="//cdn.jsdelivr.net/angularjs/1.5.5/angular.min.js"></script>
+            <script src="//cdn.jsdelivr.net/angularjs/1.5.5/angular-sanitize.min.js"></script>
+            <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyDKQn8tvlwPI_DEiy5kTq5fi6FK8Ziqcgw"></script>
+            <script src="{!URLFOR($Resource.amiclaims, 'jquery.geocomplete.min.js')}"></script>
+            <script src="{!URLFOR($Resource.amiclaims, 'amiclaims.js')}"></script>
+            <script type="text/javascript">
+                (function($) {
+                    'use strict';
+                    // the following variables can not be moved to external.js
+                    APP_ASSOCIATED_MATERIALS.staticResourcePath = '{!URLFOR($Resource.amiclaims)}';
+                    APP_ASSOCIATED_MATERIALS.staticResourcePathAlpine = '{!URLFOR($Resource.amiclaims_image_alpine)}';
+                    APP_ASSOCIATED_MATERIALS.staticResourcePathAlside = '{!URLFOR($Resource.amiclaims_image_alside)}';
+                    APP_ASSOCIATED_MATERIALS.staticResourcePathGentek = '{!URLFOR($Resource.amiclaims_image_gentek)}';
+                    APP_ASSOCIATED_MATERIALS.staticResourcePathPreservation = '{!URLFOR($Resource.amiclaims_image_preservation)}';
+                    APP_ASSOCIATED_MATERIALS.staticResourcePathRevere = '{!URLFOR($Resource.amiclaims_image_revere)}';
+                }(jQuery));
+            </script>
+        </body>
+    </html>
+</apex:page>

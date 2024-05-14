@@ -1,0 +1,96 @@
+<apex:page standardController="Case" >
+
+    <A HREF="#" onClick="testOpenSubtab();">
+        Click here to open images</A> 
+
+    <apex:includeScript value="/support/console/22.0/integration.js"/>
+    <script src="../../soap/ajax/39.0/connection.js" type="text/javascript"></script>
+   
+   
+    <script type="text/javascript">    
+        
+        function testOpenSubtab() {
+            sforce.console.getEnclosingPrimaryTabId(openSubtab);
+             
+        }
+        
+         function openSubtab(result) {
+            
+             var primaryTabId = result.id;
+             // Get Attachments for a Case
+            
+             var url = location.href;           
+             var baseURL = url.substring(0, url.indexOf('/', 14));
+             
+            // Query attachments on case
+             var Results = sforce.connection.query("select id,name,ContentType from attachment where parentid ='{!Case.id}'");
+             var records = Results.getArray('records');  
+             
+            //alert(records);          
+           
+            // Query attachments on case EmailMessage
+             var caseEmailIDs = sforce.connection.query("select id from EmailMessage where parentid ='{!Case.id}'");
+             var caseEmailIDRecords = caseEmailIDs.getArray('records');
+            //alert(caseEmailIDRecords);
+             var attachmentIDS = new Array();
+             for(i=0; i< caseEmailIDRecords.length ;i++)
+             {
+                 var caseEmailattachmenttemp = caseEmailIDRecords[i];                 
+                 attachmentIDS.push(caseEmailattachmenttemp.Id);
+                
+             }
+             
+             var attachmentString="'";
+             for(i=0;i<attachmentIDS.length;i++){
+                var attachidtemp =attachmentIDS[i];
+                attachmentString +=  attachidtemp+"','"
+             }
+              
+             if(attachmentString.length >0 && attachmentString !="'"){
+                 attachmentString = attachmentString.substring(0,attachmentString.length-2);
+                 // Query on attachments of Email Messages          
+                var caseEmailattach = sforce.connection.query("select id,name,ContentType from attachment where parentid in ("+attachmentString+")");
+                var caseEmailattachrecords = caseEmailattach.getArray('records');
+                records.push.apply(records,caseEmailattachrecords);
+             }          
+            
+            //if(records.length > 0){
+             for(var i=0; i< records.length; i++){
+                var Attachment = records[i];  
+               /* if(Attachment.ContentType=='image/jpeg' || Attachment.ContentType=='image/png'){                           
+                //sforce.console.openSubtab(primaryTabId ,baseURL+'/servlet/servlet.FileDownload?file='+Attachment.Id, false, 
+                sforce.console.openSubtab(primaryTabId , baseURL+'/servlet/servlet.FileDownload?file='+Attachment.Id, false, 
+                    Attachment.Name, null);
+                } */ 
+              // alert(Attachment.Name); 
+           if((Attachment.ContentType !=null && 
+            ( Attachment.ContentType=='image/bmp'  || 
+              Attachment.ContentType=='image/gif'  ||
+              Attachment.ContentType=='image/jpeg' || 
+              Attachment.ContentType=='image/png'  || 
+              Attachment.ContentType=='image/tiff' )) 
+              || 
+              (Attachment.ContentType == null && 
+                (Attachment.Name.toLowerCase().endsWith('.bmp')  || 
+                 Attachment.Name.toLowerCase().endsWith('.dib')  || 
+                 Attachment.Name.toLowerCase().endsWith('.jpg')  || 
+                 Attachment.Name.toLowerCase().endsWith('.jpeg') || 
+                 Attachment.Name.toLowerCase().endsWith('.jpe')  || 
+                 Attachment.Name.toLowerCase().endsWith('.jfif') ||
+                 Attachment.Name.toLowerCase().endsWith('.gif')  ||
+                 Attachment.Name.toLowerCase().endsWith('.tif')  ||
+                 Attachment.Name.toLowerCase().endsWith('.tiff') ||
+                 Attachment.Name.toLowerCase().endsWith('.png'))
+             )
+            )
+           {                           
+                //sforce.console.openSubtab(primaryTabId ,baseURL+'/servlet/servlet.FileDownload?file='+Attachment.Id, false, 
+                sforce.console.openSubtab(primaryTabId , baseURL+'/servlet/servlet.FileDownload?file='+Attachment.Id, false, 
+                    Attachment.Name, null);
+                }       
+             }                
+       }
+        
+        
+    </script>
+</apex:page>

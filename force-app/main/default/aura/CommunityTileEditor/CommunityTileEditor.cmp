@@ -1,0 +1,30 @@
+<aura:component description="CommunityTileEditor" implements="forceCommunity:availableForAllPageTypes" access="global">
+    <aura:attribute name="height" type="String" access="public" default="465px" />
+    <aura:attribute name="color" type="String" access="public" default="#1b4074" />
+    <aura:attribute name="label" type="String" access="public" default="" />
+    <aura:attribute name="description" type="String" access="public" default="" />
+    <aura:attribute name="bannerUrl" type="String" access="public"/>
+    <aura:attribute name="redirectUrl" type="String" access="public" default="" />
+    <aura:attribute name="openInNewTab" type="Boolean" default="false" access="public" />
+    <aura:attribute name="backgroundColor" type="String" default="#fff" access="public" />
+    <aura:attribute name="hoverColor" type="String" default="#f2f2f2" access="public" />
+    <aura:attribute name="bgc" type="String" default="#fff" access="private" />
+    <lightning:navigation aura:id="navService" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <div style="{! 'height: ' + v.height + '; background-color: ' + v.bgc}" class="container slds-p-around_medium slds-m-around_small"
+        onmouseover="{!c.setHover}" onmouseout="{!c.removeHover}" onclick="{!c.redirect}">
+        <aura:if isTrue="{!not(empty(v.bannerUrl))}">
+            <div class="container-banner slds-m-bottom_medium">
+                <img src="{!v.bannerUrl}" class="banner-image" alt="banner"/>
+            </div>
+        </aura:if>
+        <div style="{!'color: ' + v.color}" class="container-label slds-m-bottom_medium slds-text-align_center">
+            <lightning:formattedRichText value="{!v.label}" />
+        </div>
+        <aura:if isTrue="{!not(empty(v.description))}">
+            <div class="container-description slds-p-around_medium slds-m-bottom_medium">
+                <lightning:formattedRichText value="{!v.description}" />
+            </div>
+        </aura:if>
+    </div>
+</aura:component>

@@ -1,0 +1,101 @@
+html {
+	background-color: #eee;
+}
+
+body {
+	background-color: transparent;
+	padding-top: 10%;
+	padding-bottom: 40px;
+}
+
+.align-center {
+	text-align: center;
+}
+
+.hidden {
+	display: none;
+}
+
+.form-signin {
+	max-width: 330px;
+	padding: 15px;
+	margin: 0 auto;
+	background: #fff;
+	opacity: 0.9;
+    -webkit-transition: opacity 2s; /* For Safari 3.1 to 6.0 */
+    transition: opacity 1.5s;
+}
+
+form.form-signin:hover {
+	opacity: 1;
+}
+
+.form-signin .form-signin-heading, .form-signin .checkbox {
+	margin-bottom: 10px;
+}
+
+h2.form-signin-heading {
+	text-align: center;
+	margin-top: 10px;
+}
+
+.form-signin .checkbox {
+	font-weight: normal;
+}
+
+.form-signin .form-control {
+	position: relative;
+	height: auto;
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	        box-sizing: border-box;
+	padding: 10px;
+	font-size: 16px;
+	margin-bottom: 10px;
+}
+
+.form-signin .form-control:focus {
+	z-index: 2;
+}
+
+.form-signin input[type="email"] {
+	margin-bottom: -1px;
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+.form-signin input[type="password"] {
+	margin-bottom: 10px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+
+.btn-block.btn-default {
+	margin-top: 10px;
+}
+
+img#img-logo {
+	display: inline-block;
+}
+
+.btn-primary {
+	background-color: #337ab7;
+	transition-property: background-color;
+	transition-duration: 0.5s;
+	transition-timing-function: linear;
+}
+
+.btn-primary:hover{
+	background-color: #286090;
+}
+
+.btn-default {
+	background-color: #fff;
+	transition-property: background-color;
+	transition-duration: 0.5s;
+	transition-timing-function: linear;
+}
+
+.btn-default:hover{
+	background-color: #e6e6e6;
+}

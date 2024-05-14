@@ -1,0 +1,8 @@
+/**
+ * Created by SentientGrey on 2019-08-01.
+ */
+.THIS.container {font-family: Lato,Arial,Helvetica,sans-serif; font-size: 16px; cursor: pointer;}
+.THIS .banner-image{width: 100%}
+.THIS .container-label{font-weight: 700; margin: 0 0 20px;line-height: 1.2em; font-size: 18px;}
+.THIS .container-description {color: #4b4949; line-height: 1.5em; margin: 0 0 20px; padding: 0; }
+.THIS .container-learn-more a {color: #1b75bc; text-transform: uppercase; }

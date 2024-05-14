@@ -1,0 +1,52 @@
+<apex:page showHeader="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0" standardStyleSheets="false" controller="LoginController">
+	<html lang="en">
+        <head>
+            <meta charset="utf-8"></meta>
+            <meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+            <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+            <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+            <meta name="description" content=""></meta>
+            <meta name="author" content="Joseph Markey"></meta>
+            <title>AMI Login</title>
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+            <link rel="stylesheet" href="{!URLFOR($Resource.amiclaims, 'authentication.css')}" />
+            <!--[if lt IE 9]>
+                <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+                <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+            <![endif]-->
+        </head>
+        <body>
+        	<div class="container">
+<!--         		<div class="align-center"> -->
+<!--         			<img id="img-logo" src="{!URLFOR($Resource.amiclaims, 'amiclaims.jpg')}" class="img-responsive" /> -->
+<!--         		</div> -->
+        		<apex:form id="theForm" forceSSL="true" styleClass="form-signin">
+        			<apex:inputHidden id="origin" value="{!origin}" />
+        			<apex:pageMessages />
+					<h2 class="form-signin-heading">Welcome</h2>
+					<label for="username">Username</label>
+					<apex:inputText id="username" value="{!username}" styleClass="form-control" html-placeholder="Username" html-autofocus="true" required="true" />
+	                <label for="password">Password</label>
+	                <apex:inputSecret id="password" value="{!password}" styleClass="form-control" html-placeholder="Password" required="true" />
+	                <apex:commandButton id="login" value="Login" action="{!login}" styleClass="btn btn-lg btn-primary btn-block" />
+	                <a href="/CommunitiesSelfReg" role="button" class="btn btn-default btn-block">Register</a>
+	                <a href="/ForgotPassword" role="button" class="btn btn-default btn-block">Forgot Password</a>
+				</apex:form>
+            </div>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+            <script src="{!URLFOR($Resource.amiclaims, 'authentication.js')}"></script>
+            <script type="text/javascript">
+		        (function($) {
+		            'use strict';
+		            // the following variables can not be moved to external.js
+		            APP_ASSOCIATED_MATERIALS.staticResourcePath = '{!URLFOR($Resource.amiclaims)}';
+		            APP_ASSOCIATED_MATERIALS.staticResourcePathAlpine = '{!URLFOR($Resource.amiclaims_image_alpine)}';
+		            APP_ASSOCIATED_MATERIALS.staticResourcePathAlside = '{!URLFOR($Resource.amiclaims_image_alside)}';
+		            APP_ASSOCIATED_MATERIALS.staticResourcePathGentek = '{!URLFOR($Resource.amiclaims_image_gentek)}';
+		            APP_ASSOCIATED_MATERIALS.staticResourcePathPreservation = '{!URLFOR($Resource.amiclaims_image_preservation)}';
+		            APP_ASSOCIATED_MATERIALS.staticResourcePathRevere = '{!URLFOR($Resource.amiclaims_image_revere)}';
+		        }(jQuery));
+		    </script>
+        </body>
+    </html>
+</apex:page>
